@@ -17,15 +17,18 @@ func NewBook(logger *log.Logger) book.Service {
 	return &booksrvc{logger}
 }
 
+var bookStore = make([]*book.Book, 0)
+
 // Adds a new book to the book store.
 func (s *booksrvc) Create(ctx context.Context, p *book.Book) (res *book.Book, err error) {
-	res = &book.Book{}
+	res = &book.Book{ID: p.ID, Name: p.Name, Description: p.Description, Price: p.Price}
+	bookStore = append(bookStore, res)
 	s.logger.Print("book.create")
-	return
+	return res, nil
 }
 
 // List all entries
-func (s *booksrvc) List(ctx context.Context) (res []*book.Book, err error) {
+func (s *booksrvc) List(ctx context.Context) ([]*book.Book, error) {
 	s.logger.Print("book.list")
-	return
+	return bookStore, nil
 }
