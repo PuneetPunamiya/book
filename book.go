@@ -32,3 +32,18 @@ func (s *booksrvc) List(ctx context.Context) ([]*book.Book, error) {
 	s.logger.Print("book.list")
 	return bookStore, nil
 }
+
+// Updating the existing book
+func (s *booksrvc) Update(ctx context.Context, p *book.Book) (err error) {
+	s.logger.Print("book.update")
+
+	for i, book := range bookStore {
+		if book.ID == p.ID {
+			book.Name = p.Name
+			book.Description = p.Description
+			book.Price = p.Price
+			bookStore = append(bookStore[:i], book)
+		}
+	}
+	return
+}

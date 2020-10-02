@@ -18,6 +18,8 @@ type Service interface {
 	Create(context.Context, *Book) (res *Book, err error)
 	// List all entries
 	List(context.Context) (res []*Book, err error)
+	// Updating the existing book
+	Update(context.Context, *Book) (err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -28,7 +30,7 @@ const ServiceName = "book"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [2]string{"create", "list"}
+var MethodNames = [3]string{"create", "list", "update"}
 
 // Book is the payload type of the book service create method.
 type Book struct {

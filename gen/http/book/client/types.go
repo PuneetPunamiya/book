@@ -28,6 +28,17 @@ type CreateRequestBody struct {
 	Price uint32 `form:"price" json:"price" xml:"price"`
 }
 
+// UpdateRequestBody is the type of the "book" service "update" endpoint HTTP
+// request body.
+type UpdateRequestBody struct {
+	// Name of book
+	Name string `form:"name" json:"name" xml:"name"`
+	// Description of the book
+	Description string `form:"description" json:"description" xml:"description"`
+	// Price of the book
+	Price uint32 `form:"price" json:"price" xml:"price"`
+}
+
 // CreateResponseBody is the type of the "book" service "create" endpoint HTTP
 // response body.
 type CreateResponseBody struct {
@@ -62,6 +73,17 @@ type BookResponse struct {
 func NewCreateRequestBody(p *book.Book) *CreateRequestBody {
 	body := &CreateRequestBody{
 		ID:          p.ID,
+		Name:        p.Name,
+		Description: p.Description,
+		Price:       p.Price,
+	}
+	return body
+}
+
+// NewUpdateRequestBody builds the HTTP request body from the payload of the
+// "update" endpoint of the "book" service.
+func NewUpdateRequestBody(p *book.Book) *UpdateRequestBody {
+	body := &UpdateRequestBody{
 		Name:        p.Name,
 		Description: p.Description,
 		Price:       p.Price,

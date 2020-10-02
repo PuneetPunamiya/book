@@ -7,6 +7,10 @@
 
 package server
 
+import (
+	"fmt"
+)
+
 // CreateBookPath returns the URL path to the book service create HTTP endpoint.
 func CreateBookPath() string {
 	return "/"
@@ -15,4 +19,9 @@ func CreateBookPath() string {
 // ListBookPath returns the URL path to the book service list HTTP endpoint.
 func ListBookPath() string {
 	return "/books"
+}
+
+// UpdateBookPath returns the URL path to the book service update HTTP endpoint.
+func UpdateBookPath(id uint32) string {
+	return fmt.Sprintf("/book/%v", id)
 }

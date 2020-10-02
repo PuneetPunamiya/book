@@ -28,6 +28,17 @@ type CreateRequestBody struct {
 	Price *uint32 `form:"price,omitempty" json:"price,omitempty" xml:"price,omitempty"`
 }
 
+// UpdateRequestBody is the type of the "book" service "update" endpoint HTTP
+// request body.
+type UpdateRequestBody struct {
+	// Name of book
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Description of the book
+	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	// Price of the book
+	Price *uint32 `form:"price,omitempty" json:"price,omitempty" xml:"price,omitempty"`
+}
+
 // CreateResponseBody is the type of the "book" service "create" endpoint HTTP
 // response body.
 type CreateResponseBody struct {
@@ -91,11 +102,47 @@ func NewCreateBook(body *CreateRequestBody) *book.Book {
 	return v
 }
 
+// NewUpdateBook builds a book service update endpoint payload.
+func NewUpdateBook(body *UpdateRequestBody, id uint32) *book.Book {
+	v := &book.Book{
+		Name:        *body.Name,
+		Description: *body.Description,
+		Price:       *body.Price,
+	}
+	v.ID = id
+
+	return v
+}
+
 // ValidateCreateRequestBody runs the validations defined on CreateRequestBody
 func ValidateCreateRequestBody(body *CreateRequestBody) (err error) {
 	if body.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Description == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("description", "body"))
+	}
+	if body.Price == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("price", "body"))
+	}
+	if body.Name != nil {
+		if utf8.RuneCountInString(*body.Name) > 100 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.name", *body.Name, utf8.RuneCountInString(*body.Name), 100, false))
+		}
+	}
+	if body.Description != nil {
+		if utf8.RuneCountInString(*body.Description) > 100 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.description", *body.Description, utf8.RuneCountInString(*body.Description), 100, false))
+		}
+	}
+	return
+}
+
+// ValidateUpdateRequestBody runs the validations defined on UpdateRequestBody
+func ValidateUpdateRequestBody(body *UpdateRequestBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

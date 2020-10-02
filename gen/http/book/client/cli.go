@@ -11,6 +11,7 @@ import (
 	book "book/gen/book"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"unicode/utf8"
 
 	goa "goa.design/goa/v3/pkg"
@@ -42,6 +43,45 @@ func BuildCreatePayload(bookCreateBody string) (*book.Book, error) {
 		Description: body.Description,
 		Price:       body.Price,
 	}
+
+	return v, nil
+}
+
+// BuildUpdatePayload builds the payload for the book update endpoint from CLI
+// flags.
+func BuildUpdatePayload(bookUpdateBody string, bookUpdateID string) (*book.Book, error) {
+	var err error
+	var body UpdateRequestBody
+	{
+		err = json.Unmarshal([]byte(bookUpdateBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"description\": \"Books are human\\'s best friend\",\n      \"name\": \"book1\",\n      \"price\": 100\n   }'")
+		}
+		if utf8.RuneCountInString(body.Name) > 100 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.name", body.Name, utf8.RuneCountInString(body.Name), 100, false))
+		}
+		if utf8.RuneCountInString(body.Description) > 100 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.description", body.Description, utf8.RuneCountInString(body.Description), 100, false))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	var id uint32
+	{
+		var v uint64
+		v, err = strconv.ParseUint(bookUpdateID, 10, 32)
+		id = uint32(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be UINT32")
+		}
+	}
+	v := &book.Book{
+		Name:        body.Name,
+		Description: body.Description,
+		Price:       body.Price,
+	}
+	v.ID = id
 
 	return v, nil
 }

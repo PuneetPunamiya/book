@@ -36,6 +36,39 @@ paths:
                 id: 1
                 name: book1
                 price: 100
+  /book/{id}:
+    patch:
+      tags:
+      - book
+      summary: update book
+      description: Updating the existing book
+      operationId: book#update
+      parameters:
+      - name: id
+        in: path
+        description: ID of the book
+        required: true
+        schema:
+          type: integer
+          description: ID of the book
+          example: 1
+        example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRequestBody'
+            example:
+              description: Books are human's best friend
+              name: book1
+              price: 100
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              example: {}
   /books:
     get:
       tags:
@@ -147,6 +180,31 @@ components:
         price: 100
       required:
       - id
+      - name
+      - description
+      - price
+    UpdateRequestBody:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description of the book
+          example: Books are human's best friend
+          maxLength: 100
+        name:
+          type: string
+          description: Name of book
+          example: book1
+          maxLength: 100
+        price:
+          type: integer
+          description: Price of the book
+          example: 100
+      example:
+        description: Books are human's best friend
+        name: book1
+        price: 100
+      required:
       - name
       - description
       - price

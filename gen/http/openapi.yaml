@@ -38,6 +38,33 @@ paths:
             $ref: '#/definitions/BookCreateResponseBody'
       schemes:
       - http
+  /book/{id}:
+    patch:
+      tags:
+      - book
+      summary: update book
+      description: Updating the existing book
+      operationId: book#update
+      parameters:
+      - name: id
+        in: path
+        description: ID of the book
+        required: true
+        type: integer
+      - name: UpdateRequestBody
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/BookUpdateRequestBody'
+          required:
+          - name
+          - description
+          - price
+      responses:
+        "200":
+          description: OK response.
+      schemes:
+      - http
   /books:
     get:
       tags:
@@ -156,6 +183,33 @@ definitions:
       price: 100
     required:
     - id
+    - name
+    - description
+    - price
+  BookUpdateRequestBody:
+    title: BookUpdateRequestBody
+    type: object
+    properties:
+      description:
+        type: string
+        description: Description of the book
+        example: Books are human's best friend
+        maxLength: 100
+      name:
+        type: string
+        description: Name of book
+        example: book1
+        maxLength: 100
+      price:
+        type: integer
+        description: Price of the book
+        example: 100
+        format: int32
+    example:
+      description: Books are human's best friend
+      name: book1
+      price: 100
+    required:
     - name
     - description
     - price

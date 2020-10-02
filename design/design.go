@@ -37,4 +37,16 @@ var _ = Service("book", func() {
 			Response(StatusOK)
 		})
 	})
+
+	//Method to update a specific book
+	Method("update", func() {
+		Description("Updating the existing book")
+
+		Payload(Book)
+
+		HTTP(func() {
+			PATCH("/book/{id}")
+			Response(StatusOK)
+		})
+	})
 })
