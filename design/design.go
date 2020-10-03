@@ -17,6 +17,8 @@ var _ = API("book", func() {
 var _ = Service("book", func() {
 	Description("The book service gives details of the book.")
 
+	Error("not-found", ErrorResult, "Book Not Found Error")
+
 	//Method to add a new book
 	Method("create", func() {
 		Description("Adds a new book to the book store.")
@@ -47,6 +49,22 @@ var _ = Service("book", func() {
 		HTTP(func() {
 			PATCH("/book/{id}")
 			Response(StatusOK)
+		})
+	})
+
+	//Method to remove a particular book
+	Method("remove", func() {
+		Description("Remove book from storage")
+		Payload(func() {
+			Attribute("id", UInt32, "ID of book to remove")
+			Required("id")
+		})
+
+		HTTP(func() {
+			DELETE("/book/{id}")
+
+			Response(StatusOK)
+			Response("not-found", StatusNotFound)
 		})
 	})
 })

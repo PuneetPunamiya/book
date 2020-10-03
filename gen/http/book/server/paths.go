@@ -25,3 +25,8 @@ func ListBookPath() string {
 func UpdateBookPath(id uint32) string {
 	return fmt.Sprintf("/book/%v", id)
 }
+
+// RemoveBookPath returns the URL path to the book service remove HTTP endpoint.
+func RemoveBookPath(id uint32) string {
+	return fmt.Sprintf("/book/%v", id)
+}

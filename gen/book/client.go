@@ -18,14 +18,16 @@ type Client struct {
 	CreateEndpoint goa.Endpoint
 	ListEndpoint   goa.Endpoint
 	UpdateEndpoint goa.Endpoint
+	RemoveEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "book" service client given the endpoints.
-func NewClient(create, list, update goa.Endpoint) *Client {
+func NewClient(create, list, update, remove goa.Endpoint) *Client {
 	return &Client{
 		CreateEndpoint: create,
 		ListEndpoint:   list,
 		UpdateEndpoint: update,
+		RemoveEndpoint: remove,
 	}
 }
 
@@ -52,5 +54,11 @@ func (c *Client) List(ctx context.Context) (res []*Book, err error) {
 // Update calls the "update" endpoint of the "book" service.
 func (c *Client) Update(ctx context.Context, p *Book) (err error) {
 	_, err = c.UpdateEndpoint(ctx, p)
+	return
+}
+
+// Remove calls the "remove" endpoint of the "book" service.
+func (c *Client) Remove(ctx context.Context, p *RemovePayload) (err error) {
+	_, err = c.RemoveEndpoint(ctx, p)
 	return
 }

@@ -26,6 +26,9 @@ type Client struct {
 	// Update Doer is the HTTP client used to make requests to the update endpoint.
 	UpdateDoer goahttp.Doer
 
+	// Remove Doer is the HTTP client used to make requests to the remove endpoint.
+	RemoveDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -49,6 +52,7 @@ func NewClient(
 		CreateDoer:          doer,
 		ListDoer:            doer,
 		UpdateDoer:          doer,
+		RemoveDoer:          doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -119,6 +123,25 @@ func (c *Client) Update() goa.Endpoint {
 		resp, err := c.UpdateDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("book", "update", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Remove returns an endpoint that makes HTTP requests to the book service
+// remove server.
+func (c *Client) Remove() goa.Endpoint {
+	var (
+		decodeResponse = DecodeRemoveResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildRemoveRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.RemoveDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("book", "remove", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -85,3 +85,22 @@ func BuildUpdatePayload(bookUpdateBody string, bookUpdateID string) (*book.Book,
 
 	return v, nil
 }
+
+// BuildRemovePayload builds the payload for the book remove endpoint from CLI
+// flags.
+func BuildRemovePayload(bookRemoveID string) (*book.RemovePayload, error) {
+	var err error
+	var id uint32
+	{
+		var v uint64
+		v, err = strconv.ParseUint(bookRemoveID, 10, 32)
+		id = uint32(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for id, must be UINT32")
+		}
+	}
+	v := &book.RemovePayload{}
+	v.ID = id
+
+	return v, nil
+}

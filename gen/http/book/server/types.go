@@ -56,6 +56,24 @@ type CreateResponseBody struct {
 // response body.
 type ListResponseBody []*BookResponse
 
+// RemoveNotFoundResponseBody is the type of the "book" service "remove"
+// endpoint HTTP response body for the "not-found" error.
+type RemoveNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // BookResponse is used to define fields on response body types.
 type BookResponse struct {
 	// ID of the book
@@ -90,6 +108,20 @@ func NewListResponseBody(res []*book.Book) ListResponseBody {
 	return body
 }
 
+// NewRemoveNotFoundResponseBody builds the HTTP response body from the result
+// of the "remove" endpoint of the "book" service.
+func NewRemoveNotFoundResponseBody(res *goa.ServiceError) *RemoveNotFoundResponseBody {
+	body := &RemoveNotFoundResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewCreateBook builds a book service create endpoint payload.
 func NewCreateBook(body *CreateRequestBody) *book.Book {
 	v := &book.Book{
@@ -109,6 +141,14 @@ func NewUpdateBook(body *UpdateRequestBody, id uint32) *book.Book {
 		Description: *body.Description,
 		Price:       *body.Price,
 	}
+	v.ID = id
+
+	return v
+}
+
+// NewRemovePayload builds a book service remove endpoint payload.
+func NewRemovePayload(id uint32) *book.RemovePayload {
+	v := &book.RemovePayload{}
 	v.ID = id
 
 	return v

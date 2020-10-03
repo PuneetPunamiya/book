@@ -3,6 +3,7 @@ package bookapi
 import (
 	book "book/gen/book"
 	"context"
+	"fmt"
 	"log"
 )
 
@@ -11,6 +12,11 @@ import (
 type booksrvc struct {
 	logger *log.Logger
 }
+
+// Errors
+var (
+	notFoundError = book.MakeNotFound(fmt.Errorf("book not found"))
+)
 
 // NewBook returns the book service implementation.
 func NewBook(logger *log.Logger) book.Service {
@@ -43,6 +49,21 @@ func (s *booksrvc) Update(ctx context.Context, p *book.Book) (err error) {
 			book.Description = p.Description
 			book.Price = p.Price
 			bookStore = append(bookStore[:i], book)
+		}
+	}
+	return
+}
+
+// Remove book from storage
+func (s *booksrvc) Remove(ctx context.Context, p *book.RemovePayload) (err error) {
+	s.logger.Print("book.remove")
+
+	for i, book := range bookStore {
+		if book.ID == p.ID {
+			bookStore = append(bookStore[:i], bookStore[i+1:]...)
+			s.logger.Printf("The event with ID %d has been deleted successfully", book.ID)
+		} else {
+			return notFoundError
 		}
 	}
 	return

@@ -222,6 +222,75 @@ func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 	}
 }
 
+// BuildRemoveRequest instantiates a HTTP request object with method and path
+// set to call the "book" service "remove" endpoint
+func (c *Client) BuildRemoveRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		id uint32
+	)
+	{
+		p, ok := v.(*book.RemovePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("book", "remove", "*book.RemovePayload", v)
+		}
+		id = p.ID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RemoveBookPath(id)}
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("book", "remove", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeRemoveResponse returns a decoder for responses returned by the book
+// remove endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeRemoveResponse may return the following errors:
+//	- "not-found" (type *goa.ServiceError): http.StatusNotFound
+//	- error: internal error
+func DecodeRemoveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			return nil, nil
+		case http.StatusNotFound:
+			var (
+				body RemoveNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("book", "remove", err)
+			}
+			err = ValidateRemoveNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("book", "remove", err)
+			}
+			return nil, NewRemoveNotFound(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("book", "remove", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalBookResponseToBookBook builds a value of type *book.Book from a
 // value of type *BookResponse.
 func unmarshalBookResponseToBookBook(v *BookResponse) *book.Book {

@@ -10,6 +10,8 @@ package book
 import (
 	bookviews "book/gen/book/views"
 	"context"
+
+	goa "goa.design/goa/v3/pkg"
 )
 
 // The book service gives details of the book.
@@ -20,6 +22,8 @@ type Service interface {
 	List(context.Context) (res []*Book, err error)
 	// Updating the existing book
 	Update(context.Context, *Book) (err error)
+	// Remove book from storage
+	Remove(context.Context, *RemovePayload) (err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -30,7 +34,7 @@ const ServiceName = "book"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [3]string{"create", "list", "update"}
+var MethodNames = [4]string{"create", "list", "update", "remove"}
 
 // Book is the payload type of the book service create method.
 type Book struct {
@@ -42,6 +46,21 @@ type Book struct {
 	Description string
 	// Price of the book
 	Price uint32
+}
+
+// RemovePayload is the payload type of the book service remove method.
+type RemovePayload struct {
+	// ID of book to remove
+	ID uint32
+}
+
+// MakeNotFound builds a goa.ServiceError from an error.
+func MakeNotFound(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "not-found",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
 }
 
 // NewBook initializes result type Book from viewed result type Book.
